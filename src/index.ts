@@ -56,10 +56,10 @@ app.post("/forgot-password", async (req, res) => {
 });
 
 // Company routes
-app.get("/companies", async (req, res) => {
-  const companies = await prisma.company.findMany();
-  res.json(companies);
-});
+// app.get("/companies", async (req, res) => {
+//   const companies = await prisma.company.findMany();
+//   res.json(companies);
+// });
 
 // Swagger documentation for the routes
 /**
