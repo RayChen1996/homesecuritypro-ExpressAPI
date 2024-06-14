@@ -36,40 +36,72 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var express_1 = require("express");
+var express = require("express");
 var client_1 = require("@prisma/client");
-var bcryptjs_1 = require("bcryptjs");
-var jsonwebtoken_1 = require("jsonwebtoken");
-var swagger_jsdoc_1 = require("swagger-jsdoc");
-var swagger_ui_express_1 = require("swagger-ui-express");
-var dotenv_1 = require("dotenv");
+var bcrypt = require("bcryptjs");
+var jwt = require("jsonwebtoken");
+var swaggerJsDoc = require("swagger-jsdoc");
+var swaggerUi = require("swagger-ui-express");
+var dotenv = require("dotenv");
 // 加載 .env 文件中的環境變數
-dotenv_1.default.config();
+dotenv.config();
 var prisma = new client_1.PrismaClient();
-var app = (0, express_1.default)();
-app.use(express_1.default.json());
+var app = express();
+app.use(express.json());
 var swaggerOptions = {
     swaggerDefinition: {
         openapi: "3.0.0",
         info: {
             title: "homesecuritypro-ExpressAPI",
             version: "1.0.0",
-            description: "API documentation for Home Security Pro",
+            description: "Home Security Pro 的 API 文件",
         },
+        tags: [
+            { name: "User", description: "使用者相關的端點" },
+            { name: "Symptom", description: "症狀相關的端點" },
+        ],
     },
     apis: ["./src/index.ts"],
 };
-var swaggerDocs = (0, swagger_jsdoc_1.default)(swaggerOptions);
-app.use("/api-docs", swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(swaggerDocs));
+var swaggerDocs = swaggerJsDoc(swaggerOptions);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 var JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
-// User routes
+/**
+ * @swagger
+ * /member:
+ *   get:
+ *     summary: 獲取會員詳細信息
+ *     tags: [Symptom]
+ *     responses:
+ *       200:
+ *         description: 成功獲取會員詳細信息
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 a:
+ *                   type: number
+ *                   description: 示例屬性
+ */
+app.get("/member", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var user;
+    return __generator(this, function (_a) {
+        user = {
+            a: 1,
+        };
+        res.json(user);
+        return [2 /*return*/];
+    });
+}); });
+// 使用者路由
 app.post("/register", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var _a, email, password, name, hashedPassword, user;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
                 _a = req.body, email = _a.email, password = _a.password, name = _a.name;
-                return [4 /*yield*/, bcryptjs_1.default.hash(password, 10)];
+                return [4 /*yield*/, bcrypt.hash(password, 10)];
             case 1:
                 hashedPassword = _b.sent();
                 return [4 /*yield*/, prisma.user.create({
@@ -93,38 +125,350 @@ app.post("/login", function (req, res) { return __awaiter(void 0, void 0, void 0
                 user = _c.sent();
                 _b = !user;
                 if (_b) return [3 /*break*/, 3];
-                return [4 /*yield*/, bcryptjs_1.default.compare(password, user.password)];
+                return [4 /*yield*/, bcrypt.compare(password, user.password)];
             case 2:
                 _b = !(_c.sent());
                 _c.label = 3;
             case 3:
                 if (_b) {
-                    return [2 /*return*/, res.status(401).send("Invalid email or password")];
+                    return [2 /*return*/, res.status(401).send("無效的電子郵件或密碼")];
                 }
-                token = jsonwebtoken_1.default.sign({ userId: user.id }, JWT_SECRET);
+                token = jwt.sign({ userId: user.id }, JWT_SECRET);
                 res.json({ token: token });
+                return [2 /*return*/];
+        }
+    });
+}); });
+app.post("/check", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var _a, email, password, user, _b;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
+            case 0:
+                _a = req.body, email = _a.email, password = _a.password;
+                return [4 /*yield*/, prisma.user.findUnique({ where: { email: email } })];
+            case 1:
+                user = _c.sent();
+                _b = !user;
+                if (_b) return [3 /*break*/, 3];
+                return [4 /*yield*/, bcrypt.compare(password, user.password)];
+            case 2:
+                _b = !(_c.sent());
+                _c.label = 3;
+            case 3:
+                if (_b) {
+                    return [2 /*return*/, res.status(401).send("無效的電子郵件或密碼")];
+                }
+                else {
+                    return [2 /*return*/, res.status(200).send({ message: "使用者已存在" })];
+                }
                 return [2 /*return*/];
         }
     });
 }); });
 app.post("/forgot-password", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     return __generator(this, function (_a) {
-        // Implement forgot password logic here
-        res.send("Forgot password endpoint");
+        // 在這裡實現忘記密碼的邏輯
+        res.send("忘記密碼端點");
         return [2 /*return*/];
     });
 }); });
-// Company routes
+// 新增症狀
+app.post("/newSymptoms", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var _a, label, description, symptom, error_1;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                _b.trys.push([0, 2, , 3]);
+                _a = req.body, label = _a.label, description = _a.description;
+                return [4 /*yield*/, prisma.houseSymptoms.create({
+                        data: { label: label, description: description },
+                    })];
+            case 1:
+                symptom = _b.sent();
+                return [2 /*return*/, res.status(200).send({ message: "新增成功", symptom: symptom })];
+            case 2:
+                error_1 = _b.sent();
+                return [2 /*return*/, res.status(500).send({ message: "新增失敗", error: error_1 })];
+            case 3: return [2 /*return*/];
+        }
+    });
+}); });
+// 獲取所有症狀
+app.get("/symptoms", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var symptoms, error_2;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                _a.trys.push([0, 2, , 3]);
+                return [4 /*yield*/, prisma.houseSymptoms.findMany()];
+            case 1:
+                symptoms = _a.sent();
+                res.json(symptoms);
+                return [3 /*break*/, 3];
+            case 2:
+                error_2 = _a.sent();
+                res.status(500).send({ message: "獲取失敗", error: error_2 });
+                return [3 /*break*/, 3];
+            case 3: return [2 /*return*/];
+        }
+    });
+}); });
+// 獲取單個症狀
+app.get("/symptoms/:id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var id, symptom, error_3;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                _a.trys.push([0, 2, , 3]);
+                id = req.params.id;
+                return [4 /*yield*/, prisma.houseSymptoms.findUnique({
+                        where: { id: id },
+                    })];
+            case 1:
+                symptom = _a.sent();
+                if (!symptom) {
+                    return [2 /*return*/, res.status(404).send({ message: "症狀未找到" })];
+                }
+                res.json(symptom);
+                return [3 /*break*/, 3];
+            case 2:
+                error_3 = _a.sent();
+                res.status(500).send({ message: "獲取失敗", error: error_3 });
+                return [3 /*break*/, 3];
+            case 3: return [2 /*return*/];
+        }
+    });
+}); });
+// 更新症狀
+app.put("/symptoms/:id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var id, _a, label, description, symptom, error_4;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                _b.trys.push([0, 2, , 3]);
+                id = req.params.id;
+                _a = req.body, label = _a.label, description = _a.description;
+                return [4 /*yield*/, prisma.houseSymptoms.update({
+                        where: { id: id },
+                        data: { label: label, description: description },
+                    })];
+            case 1:
+                symptom = _b.sent();
+                res.json(symptom);
+                return [3 /*break*/, 3];
+            case 2:
+                error_4 = _b.sent();
+                res.status(500).send({ message: "更新失敗", error: error_4 });
+                return [3 /*break*/, 3];
+            case 3: return [2 /*return*/];
+        }
+    });
+}); });
+// 刪除症狀
+app.delete("/symptoms/:id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var id, error_5;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                _a.trys.push([0, 2, , 3]);
+                id = req.params.id;
+                return [4 /*yield*/, prisma.houseSymptoms.delete({
+                        where: { id: id },
+                    })];
+            case 1:
+                _a.sent();
+                res.send({ message: "刪除成功" });
+                return [3 /*break*/, 3];
+            case 2:
+                error_5 = _a.sent();
+                res.status(500).send({ message: "刪除失敗", error: error_5 });
+                return [3 /*break*/, 3];
+            case 3: return [2 /*return*/];
+        }
+    });
+}); });
+// 公司路由
 // app.get("/companies", async (req, res) => {
 //   const companies = await prisma.company.findMany();
 //   res.json(companies);
 // });
-// Swagger documentation for the routes
+// Swagger 文件
 /**
  * @swagger
- * /register:
+ * /newSymptoms:
  *   post:
- *     summary: Register a new user
+ *     summary: 新增症狀
+ *     tags: [Symptom]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               label:
+ *                 type: string
+ *                 description: 症狀標籤
+ *               description:
+ *                 type: string
+ *                 description: 症狀描述
+ *     responses:
+ *       200:
+ *         description: 症狀新增成功
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 symptom:
+ *                   $ref: '#/components/schemas/Symptom'
+ *       500:
+ *         description: 症狀新增失敗
+ */
+/**
+ * @swagger
+ * /symptoms:
+ *   get:
+ *     summary: 獲取所有症狀
+ *     tags: [Symptom]
+ *     responses:
+ *       200:
+ *         description: 成功獲取症狀列表
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Symptom'
+ *       500:
+ *         description: 獲取症狀列表失敗
+ */
+/**
+ * @swagger
+ * /symptoms/{id}:
+ *   get:
+ *     summary: 獲取單個症狀
+ *     tags: [Symptom]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: 症狀ID
+ *     responses:
+ *       200:
+ *         description: 成功獲取症狀
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Symptom'
+ *       404:
+ *         description: 症狀未找到
+ *       500:
+ *         description: 獲取症狀失敗
+ */
+/**
+ * @swagger
+ * /symptoms/{id}:
+ *   put:
+ *     summary: 更新症狀
+ *     tags: [Symptom]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: 症狀ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               label:
+ *                 type: string
+ *                 description: 症狀標籤
+ *               description:
+ *                 type: string
+ *                 description: 症狀描述
+ *     responses:
+ *       200:
+ *         description: 症狀更新成功
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Symptom'
+ *       500:
+ *         description: 症狀更新失敗
+ */
+/**
+ * @swagger
+ * /symptoms/{id}:
+ *   delete:
+ *     summary: 刪除症狀
+ *     tags: [Symptom]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: 症狀ID
+ *     responses:
+ *       200:
+ *         description: 症狀刪除成功
+ *       500:
+ *         description: 症狀刪除失敗
+ */
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Symptom:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           description: 症狀ID
+ *         label:
+ *           type: string
+ *           description: 症狀標籤
+ *         description:
+ *           type: string
+ *           description: 症狀描述
+ */
+/**
+ * @swagger
+ * /newSymptoms:
+ *   post:
+ *     summary: 新增症狀
+ *     tags: [Symptom]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               label:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: 成功新增症狀
+ */
+/**
+ * @swagger
+ * /check:
+ *   post:
+ *     summary: 檢查使用者
+ *     tags: [User]
  *     requestBody:
  *       required: true
  *       content:
@@ -140,13 +484,37 @@ app.post("/forgot-password", function (req, res) { return __awaiter(void 0, void
  *                 type: string
  *     responses:
  *       200:
- *         description: User registered successfully
+ *         description: 使用者檢查成功
+ */
+/**
+ * @swagger
+ * /register:
+ *   post:
+ *     summary: 註冊新使用者
+ *     tags: [User]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               name:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: 使用者註冊成功
  */
 /**
  * @swagger
  * /login:
  *   post:
- *     summary: Login a user
+ *     summary: 使用者登入
+ *     tags: [User]
  *     requestBody:
  *       required: true
  *       content:
@@ -160,13 +528,14 @@ app.post("/forgot-password", function (req, res) { return __awaiter(void 0, void
  *                 type: string
  *     responses:
  *       200:
- *         description: User logged in successfully
+ *         description: 使用者登入成功
  */
 /**
  * @swagger
  * /forgot-password:
  *   post:
- *     summary: Forgot password
+ *     summary: 忘記密碼
+ *     tags: [User]
  *     requestBody:
  *       required: true
  *       content:
@@ -178,18 +547,18 @@ app.post("/forgot-password", function (req, res) { return __awaiter(void 0, void
  *                 type: string
  *     responses:
  *       200:
- *         description: Forgot password endpoint
+ *         description: 忘記密碼端點
  */
 /**
  * @swagger
  * /companies:
  *   get:
- *     summary: Get all companies
+ *     summary: 獲取所有公司
  *     responses:
  *       200:
- *         description: List of companies
+ *         description: 公司列表
  */
 var PORT = process.env.PORT || 4000;
 app.listen(PORT, function () {
-    console.log("Server is running on port ".concat(PORT));
+    console.log("\u670D\u52D9\u6B63\u5728\u57F7\u884C\u65BC\u7AEF\u53E3 ".concat(PORT));
 });

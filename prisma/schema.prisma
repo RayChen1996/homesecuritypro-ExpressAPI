@@ -24,3 +24,13 @@ model User {
   password String
   name     String?
 }
+
+ 
+
+model HouseSymptoms {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  label         String
+  description   String   // A required string field for the symptom description
+  createdAt     DateTime @default(now())      // A required date-time field for the creation timestamp
+  additionalInfo String? // Optional string field for any additional information
+}
