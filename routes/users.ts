@@ -331,7 +331,7 @@ router.post('/forget-password', async function (req, res) {
       if (updated) {
         const MailInfo = await sendMail({
           to: email,
-          subject: '募募 MoveMove - 重設密碼',
+          subject: ' 重設密碼',
           text: `親愛的用戶您好，您的新密碼是${newPassword}`
         })
         console.log(MailInfo)

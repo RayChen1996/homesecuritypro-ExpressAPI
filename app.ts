@@ -12,6 +12,7 @@ import userRouter from './routes/users'
 import houseSymptomsRouter from './routes/houseSymptoms'
 import cooperativeExpertsRouter from './routes/cooperativeExperts'
 import recommendationArticlesRouter from './routes/recommendationArticles'
+import contractFormRouter from './routes/contractForm'
 // import gmailAuthRouter from './routes/gmailAuth'
 
 // Swagger 使用
@@ -19,7 +20,7 @@ import swaggerUi from 'swagger-ui-express'
 import swaggerDocument from './swagger-output.json'
 
 const app = express()
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
+app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 
 // 出現預料外的錯誤
 process.on('uncaughtException', (err) => {
@@ -54,6 +55,7 @@ app.use('/user', userRouter)
 app.use('/house-symptoms', houseSymptomsRouter)
 app.use('/cooperativeExperts', cooperativeExpertsRouter)
 app.use('/recommendationArticles', recommendationArticlesRouter)
+app.use('/contractFormRouter', contractFormRouter)
 
 // 404 路由
 app.use((req: Request, res: Response) => {
