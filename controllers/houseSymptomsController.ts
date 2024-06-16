@@ -6,16 +6,6 @@ const getHouseSymptoms = async (req: Request, res: Response, next: NextFunction)
   /**
      * #swagger.tags = ['屋況徵狀列表']
      * #swagger.description = '首頁取得屋況徵狀'
-     * #swagger.security = [{
-        token: []
-       }]
-    * #swagger.parameters['header'] = {
-        in: 'header',
-        name: 'authorization',
-        description: 'Bearer token',
-        required: true,
-        type: 'string'
-      }
      * #swagger.responses[200] = {
         description: '登入成功',
         schema: {
