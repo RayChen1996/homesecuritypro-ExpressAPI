@@ -13,6 +13,7 @@ import houseSymptomsRouter from './routes/houseSymptoms'
 import cooperativeExpertsRouter from './routes/cooperativeExperts'
 import recommendationArticlesRouter from './routes/recommendationArticles'
 import contractFormRouter from './routes/contractForm'
+import uploadRouter from './routes/upload'
 // import gmailAuthRouter from './routes/gmailAuth'
 
 // Swagger 使用
@@ -56,6 +57,7 @@ app.use('/house-symptoms', houseSymptomsRouter)
 app.use('/cooperativeExperts', cooperativeExpertsRouter)
 app.use('/recommendationArticles', recommendationArticlesRouter)
 app.use('/contractFormRouter', contractFormRouter)
+app.use('/uploadRouter', uploadRouter)
 
 // 404 路由
 app.use((req: Request, res: Response) => {

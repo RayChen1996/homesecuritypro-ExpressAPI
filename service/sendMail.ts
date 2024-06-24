@@ -26,7 +26,7 @@ export const sendMail = async ({ to, subject, text }: MailOptions) => {
     service: 'gmail',
     auth: {
       type: 'OAuth2',
-      user: 'movemovepm@gmail.com',
+      user: '@gmail.com',
       clientId: process.env.CLIENT_ID,
       clientSecret: process.env.CLIENT_SECRET,
       refreshToken: process.env.GMAIL_REFRESH_TOKEN,
@@ -35,7 +35,7 @@ export const sendMail = async ({ to, subject, text }: MailOptions) => {
   } as nodemailer.TransportOptions)
 
   const mailOptions = {
-    from: '"募募 MoveMove 集資平台" <movemovepm@gmail.com>',
+    from: '"" <@gmail.com>',
     to, // 要寄送的對象
     subject, // '這是信件的主旨'
     text // '‘這是信件的內容'

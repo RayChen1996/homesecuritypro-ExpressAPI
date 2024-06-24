@@ -117,6 +117,84 @@ router.post('/sign-up', async function (req, res) {
   }
 })
 
+router.post('/simple-signup', async function (req, res) {
+  /**
+     * #swagger.tags = ['會員']
+     * #swagger.description = '簡易註冊會員註冊(只要填寫手機號碼)'
+     * #swagger.security = [{
+        token: []
+       }]
+     * #swagger.parameters['body'] = {
+        in: 'body',
+        description: '會員註冊',
+        type: 'object',
+        required: true,
+        schema: {
+          $phone: '0918895519'
+        }
+       }
+     * #swagger.responses[200] = {
+        description: '登入成功',
+        schema: {
+          "status": "success",
+          "message": "註冊成功",
+        },
+       }
+     * #swagger.responses[400] = {
+        description: '註冊失敗',
+        schema: {
+          "status": "error",
+          "message": "請輸入Email | 請輸入有效的Email | 請輸入Password | 密碼至少需要 8 位數 | 這個 Email 已經被註冊過了"
+        },
+       }
+     *
+     */
+  try {
+    // console.log(req)
+    console.log(req.body)
+    const { email, password, phone } = req.body
+
+    const userData = await UserModal.findOne({ phone })
+    if (userData) {
+      res.status(400).json({
+        status: 'error',
+        message: '這個 E-Mail 已經被註冊過了'
+      })
+      return
+    }
+
+    // Hash the extracted substring
+    const hashedPassword = await bcrypt.hash(password, 10)
+
+    // console.log(phone.toString().substring(6))
+
+    const data = {
+      email,
+      password: hashedPassword
+    }
+
+    const result = await UserModal.create(data)
+    const { _id, nickName: resNickName, email: resEmail } = result
+    res.status(200).json({
+      status: 'success',
+      message: '註冊成功',
+      results: {
+        id: _id,
+        email: resEmail,
+        nickName: resNickName
+      }
+    })
+  } catch (error) {
+    const err = error as Error
+    console.error('Error:', error)
+    res.status(500).json({
+      status: 'error',
+      message: '伺服器錯誤 ',
+      error: err.message
+    })
+  }
+})
+
 // 登入
 router.post('/login', async function (req, res) {
   /**

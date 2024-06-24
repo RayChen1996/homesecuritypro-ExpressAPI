@@ -7,7 +7,8 @@ import authMiddleware from '../middleware/authMiddleware'
 const router = express.Router()
 
 // 上傳圖片API POST /upload
-router.post('/', authMiddleware, async (req, res) => {
+router.post('/', async (req, res) => {
+  //authMiddleware,
   /**
    * #swagger.consumes = ['multipart/form-data']
    * #swagger.tags = ['Upload - 圖片上傳']
@@ -15,6 +16,13 @@ router.post('/', authMiddleware, async (req, res) => {
    * #swagger.security = [{
       token: []
     }]
+  * #swagger.parameters['header'] = {
+      in: 'header',
+      name: 'authorization',
+      description: 'Bearer token',
+      required: true,
+      type: 'string'
+    }
   * #swagger.parameters['body'] = {
       in: 'formData',
       description: 'form-data 帶圖片，必須為5MB以內的png或jpeg、gif類型圖檔',
